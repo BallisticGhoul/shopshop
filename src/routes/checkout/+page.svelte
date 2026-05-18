@@ -1,14 +1,17 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { cart } from '$lib/stores/cart.svelte';
-	import { goto } from '$app/navigation';
 
-	let placed = $state(false);
+	let { form } = $props();
+
 	let name = $state('');
 	let address = $state('');
 
-	function placeOrder() {
-		if (!name.trim() || !address.trim()) return;
-		placed = true;
+	let cartJson = $derived(
+		JSON.stringify(cart.items.map((i) => ({ shopId: i.product.shopId, id: i.product.id, quantity: i.quantity })))
+	);
+
+	function handleSuccess() {
 		cart.clear();
 	}
 </script>
@@ -19,17 +22,17 @@
 
 <div class="page">
 	<div class="inner">
-		{#if placed}
+		{#if form?.success}
 			<div class="success">
 				<div class="icon">✓</div>
 				<h1>Order placed!</h1>
 				<p>
-					Thanks, {name}! Your order has been received. Nothing was actually charged — this is a
+					Thanks, {form.customerName}! Your order has been received. Nothing was actually charged — this is a
 					demo.
 				</p>
 				<a href="/">Back to browsing</a>
 			</div>
-		{:else if cart.items.length === 0}
+		{:else if cart.items.length === 0 && !form?.success}
 			<div class="empty">
 				<p>Nothing in your cart.</p>
 				<a href="/">Browse shops</a>
@@ -37,16 +40,29 @@
 		{:else}
 			<h1>Checkout</h1>
 			<div class="layout">
-				<form onsubmit={(e) => { e.preventDefault(); placeOrder(); }}>
+				<form
+					method="POST"
+					use:enhance={() => {
+						return ({ result, update }) => {
+							if (result.type === 'success') handleSuccess();
+							update();
+						};
+					}}
+				>
+					<input type="hidden" name="items" value={cartJson} />
+
 					<div class="section">
 						<h2>Your details</h2>
+						{#if form?.error}
+							<p class="error">{form.error}</p>
+						{/if}
 						<label>
 							Name
-							<input type="text" bind:value={name} required placeholder="Your name" />
+							<input type="text" name="name" bind:value={name} required placeholder="Your name" />
 						</label>
 						<label>
 							Shipping address
-							<input type="text" bind:value={address} required placeholder="123 Example St" />
+							<input type="text" name="address" bind:value={address} required placeholder="123 Example St" />
 						</label>
 					</div>
 
@@ -147,6 +163,16 @@
 
 	input:focus {
 		border-color: #cc0000;
+	}
+
+	.error {
+		background: #fff0f0;
+		border: 1px solid #ffcccc;
+		border-radius: 6px;
+		padding: 9px 12px;
+		font-size: 0.85rem;
+		color: #cc0000;
+		margin: 0;
 	}
 
 	.notice {

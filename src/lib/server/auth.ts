@@ -188,3 +188,23 @@ export async function deleteProduct(shopId: string, productId: string): Promise<
 	const kv = await getKv();
 	await kv.delete(['products', shopId, productId]);
 }
+
+export async function deleteShop(shopId: string, ownerUsername: string): Promise<void> {
+	const kv = await getKv();
+	const productsIter = kv.list({ prefix: ['products', shopId] });
+	for await (const entry of productsIter) {
+		await kv.delete(entry.key);
+	}
+	await kv.delete(['shops_by_owner', ownerUsername.toLowerCase(), shopId]);
+	await kv.delete(['shops', shopId]);
+}
+
+export async function decrementStock(shopId: string, productId: string, qty: number): Promise<void> {
+	const kv = await getKv();
+	const entry = await kv.get<Product>(['products', shopId, productId]);
+	if (!entry.value) return;
+	await kv.set(['products', shopId, productId], {
+		...entry.value,
+		stock: Math.max(0, entry.value.stock - qty)
+	});
+}

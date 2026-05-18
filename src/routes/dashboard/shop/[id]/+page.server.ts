@@ -1,5 +1,5 @@
 import { fail, redirect, error } from '@sveltejs/kit';
-import { getShop, getShopProducts, updateShop, createProduct, deleteProduct } from '$lib/server/auth';
+import { getShop, getShopProducts, updateShop, createProduct, deleteProduct, deleteShop } from '$lib/server/auth';
 
 export async function load({ params, locals }) {
 	const shop = await getShop(params.id);
@@ -56,5 +56,12 @@ export const actions = {
 		const productId = data.get('productId') as string;
 		if (productId) await deleteProduct(params.id, productId);
 		return {};
+	},
+
+	deleteShop: async ({ params, locals }) => {
+		const shop = await getShop(params.id);
+		if (!shop || shop.owner !== locals.user!.username) throw error(403, 'Not your shop');
+		await deleteShop(params.id, locals.user!.username);
+		redirect(303, '/dashboard');
 	}
 };

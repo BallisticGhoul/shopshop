@@ -20,7 +20,7 @@
 				<ul class="items">
 					{#each cart.items as item (item.product.id)}
 						<li class="item">
-							<img src={item.product.image} alt={item.product.name} />
+							<div class="thumb" style={item.product.image ? `background-image: url('${item.product.image}')` : ''}></div>
 							<div class="info">
 								<span class="name">{item.product.name}</span>
 								<span class="shop">{item.shopName}</span>
@@ -33,6 +33,7 @@
 								<span class="qty">{item.quantity}</span>
 								<button
 									aria-label="Increase quantity"
+									disabled={item.quantity >= item.product.stock}
 									onclick={() => cart.setQuantity(item.product.id, item.quantity + 1)}
 								>+</button>
 							</div>
@@ -114,12 +115,14 @@
 		padding: 12px 16px;
 	}
 
-	.item img {
+	.thumb {
 		width: 56px;
 		height: 56px;
-		object-fit: cover;
+		flex-shrink: 0;
 		border-radius: 5px;
-		background: #f5f5f5;
+		background-color: #d8d8d8;
+		background-size: cover;
+		background-position: center;
 	}
 
 	.info {

@@ -44,6 +44,14 @@
 			</form>
 		</section>
 
+		<section class="section danger-zone">
+			<h2>Danger zone</h2>
+			<p class="danger-desc">Permanently delete this shop and all its products. This cannot be undone.</p>
+			<form method="POST" action="?/deleteShop" use:enhance onsubmit={(e) => { if (!confirm('Delete this shop? This cannot be undone.')) e.preventDefault(); }}>
+				<button type="submit" class="danger-btn">Delete shop</button>
+			</form>
+		</section>
+
 		<section class="section">
 			<h2>Products</h2>
 
@@ -348,5 +356,38 @@
 	.row label:nth-child(2),
 	.row label:nth-child(3) {
 		width: 100px;
+	}
+
+	.danger-zone {
+		border-color: #ffd0d0;
+	}
+
+	.danger-zone h2 {
+		color: #cc0000;
+	}
+
+	.danger-desc {
+		margin: -12px 0 16px;
+		font-size: 0.85rem;
+		color: #888;
+	}
+
+	.danger-btn {
+		align-self: flex-start;
+		background: #fff;
+		color: #cc0000;
+		border: 1px solid #cc0000;
+		border-radius: 6px;
+		padding: 9px 18px;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		font-family: inherit;
+		transition: background 0.15s, color 0.15s;
+	}
+
+	.danger-btn:hover {
+		background: #cc0000;
+		color: #fff;
 	}
 </style>
