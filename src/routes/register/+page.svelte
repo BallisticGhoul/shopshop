@@ -2,6 +2,8 @@
 	import { enhance } from '$app/forms';
 
 	let { form } = $props();
+	let showPassword = $state(false);
+	let showConfirm = $state(false);
 </script>
 
 <svelte:head>
@@ -32,17 +34,64 @@
 			</label>
 			<label>
 				Password
-				<input
-					type="password"
-					name="password"
-					required
-					autocomplete="new-password"
-					minlength="8"
-				/>
+				<div class="input-wrap">
+					<input
+						type={showPassword ? 'text' : 'password'}
+						name="password"
+						required
+						autocomplete="new-password"
+						minlength="8"
+					/>
+					<button
+						type="button"
+						class="eye"
+						aria-label={showPassword ? 'Hide password' : 'Show password'}
+						onclick={() => (showPassword = !showPassword)}
+					>
+						{#if showPassword}
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+								<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+								<line x1="1" y1="1" x2="23" y2="23"/>
+							</svg>
+						{:else}
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+								<circle cx="12" cy="12" r="3"/>
+							</svg>
+						{/if}
+					</button>
+				</div>
 			</label>
 			<label>
 				Confirm password
-				<input type="password" name="confirm" required autocomplete="new-password" />
+				<div class="input-wrap">
+					<input
+						type={showConfirm ? 'text' : 'password'}
+						name="confirm"
+						required
+						autocomplete="new-password"
+					/>
+					<button
+						type="button"
+						class="eye"
+						aria-label={showConfirm ? 'Hide password' : 'Show password'}
+						onclick={() => (showConfirm = !showConfirm)}
+					>
+						{#if showConfirm}
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+								<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+								<line x1="1" y1="1" x2="23" y2="23"/>
+							</svg>
+						{:else}
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+								<circle cx="12" cy="12" r="3"/>
+							</svg>
+						{/if}
+					</button>
+				</div>
 			</label>
 			<button type="submit">Create account</button>
 		</form>
@@ -92,6 +141,17 @@
 		color: #444;
 	}
 
+	.input-wrap {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.input-wrap input {
+		width: 100%;
+		padding-right: 40px;
+	}
+
 	input {
 		border: 1px solid #e0e0e0;
 		border-radius: 5px;
@@ -106,7 +166,25 @@
 		border-color: #cc0000;
 	}
 
-	button {
+	.eye {
+		position: absolute;
+		right: 10px;
+		background: none;
+		border: none;
+		padding: 0;
+		margin: 0;
+		cursor: pointer;
+		color: #aaa;
+		display: flex;
+		align-items: center;
+		line-height: 1;
+	}
+
+	.eye:hover {
+		color: #555;
+	}
+
+	button[type='submit'] {
 		background: #cc0000;
 		color: #fff;
 		border: none;
@@ -119,7 +197,7 @@
 		transition: background 0.15s;
 	}
 
-	button:hover {
+	button[type='submit']:hover {
 		background: #aa0000;
 	}
 
