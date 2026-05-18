@@ -1,62 +1,142 @@
 <script lang="ts">
-	import ShopCard from '$lib/components/ShopCard.svelte';
-	import { mockShops } from '$lib/mock';
+	import { page } from '$app/stores';
+
+	let { data } = $props();
+	let user = $derived(data.user);
 </script>
 
 <svelte:head>
-	<title>ShopShop — Browse Shops</title>
+	<title>ShopShop</title>
 </svelte:head>
 
-<section class="hero">
+<div class="hero">
 	<div class="inner">
-		<h1>Discover unique shops</h1>
-		<p>Browse handpicked collections from independent sellers.</p>
-	</div>
-</section>
-
-<section class="shops">
-	<div class="inner">
-		<div class="grid">
-			{#each mockShops as shop (shop.id)}
-				<ShopCard {shop} />
-			{/each}
+		<div class="logo-mark">
+			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+				<rect width="100" height="100" fill="#CC0000"/>
+				<rect x="64" y="17" width="13" height="29" fill="white"/>
+				<polygon points="50,11 91,47 9,47" fill="white"/>
+				<rect x="12" y="44" width="76" height="44" fill="white"/>
+				<polyline points="28,57 35,57 41,70 65,70 69,60 35,60"
+					fill="none" stroke="#CC0000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+				<circle cx="43" cy="76.5" r="4.5" fill="#CC0000"/>
+				<circle cx="62" cy="76.5" r="4.5" fill="#CC0000"/>
+			</svg>
 		</div>
+		<h1>ShopShop</h1>
+		<p>Create and discover unique online shops.</p>
+
+		{#if user}
+			<p class="welcome">Welcome back, <strong>{user.username}</strong>.</p>
+			<div class="actions">
+				<a href="/browse" class="btn primary">Browse Shops</a>
+				<a href="/dashboard" class="btn secondary">My Dashboard</a>
+				<a href="/dashboard/shop/new" class="btn secondary">Create a Shop</a>
+			</div>
+		{:else}
+			<div class="actions">
+				<a href="/browse" class="btn primary">Browse Shops</a>
+				<a href="/login" class="btn secondary">Log In</a>
+				<a href="/dashboard/shop/new" class="btn outline">Create a Shop</a>
+			</div>
+		{/if}
 	</div>
-</section>
+</div>
 
 <style>
 	.hero {
+		min-height: calc(100vh - 60px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		background: #fff;
-		border-bottom: 1px solid #e8e8e8;
-		padding: 48px 24px;
-	}
-
-	.inner {
-		max-width: 1100px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		margin: 0 0 8px;
-		font-size: 2rem;
-		font-weight: 700;
-		color: #1a1a1a;
-		letter-spacing: -0.03em;
-	}
-
-	.hero p {
-		margin: 0;
-		font-size: 1rem;
-		color: #666;
-	}
-
-	.shops {
 		padding: 40px 24px;
 	}
 
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-		gap: 20px;
+	.inner {
+		text-align: center;
+		max-width: 480px;
+	}
+
+	.logo-mark {
+		width: 88px;
+		height: 88px;
+		margin: 0 auto 24px;
+		border-radius: 20px;
+		overflow: hidden;
+	}
+
+	.logo-mark svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	h1 {
+		margin: 0 0 10px;
+		font-size: 2.8rem;
+		font-weight: 800;
+		color: #1a1a1a;
+		letter-spacing: -0.04em;
+	}
+
+	.hero > .inner > p {
+		margin: 0 0 28px;
+		font-size: 1.05rem;
+		color: #666;
+	}
+
+	.welcome {
+		margin: -16px 0 20px !important;
+		font-size: 0.9rem !important;
+		color: #444 !important;
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		align-items: center;
+	}
+
+	.btn {
+		display: inline-block;
+		width: 220px;
+		padding: 13px 0;
+		border-radius: 8px;
+		font-size: 0.95rem;
+		font-weight: 600;
+		text-decoration: none;
+		text-align: center;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.btn.primary {
+		background: #cc0000;
+		color: #fff;
+	}
+
+	.btn.primary:hover {
+		background: #aa0000;
+	}
+
+	.btn.secondary {
+		background: #f5f5f5;
+		color: #1a1a1a;
+	}
+
+	.btn.secondary:hover {
+		background: #e8e8e8;
+	}
+
+	.btn.outline {
+		background: transparent;
+		color: #cc0000;
+		border: 2px solid #cc0000;
+		padding: 11px 0;
+	}
+
+	.btn.outline:hover {
+		background: #cc0000;
+		color: #fff;
 	}
 </style>

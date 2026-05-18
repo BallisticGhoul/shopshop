@@ -1,3 +1,11 @@
+export interface User {
+	id: string;
+	username: string;
+	passwordHash: string;
+	salt: string;
+	createdAt: string;
+}
+
 export interface Shop {
 	id: string;
 	name: string;
