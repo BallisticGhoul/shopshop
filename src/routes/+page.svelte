@@ -12,16 +12,7 @@
 <div class="hero">
 	<div class="inner">
 		<div class="logo-mark">
-			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-				<rect width="100" height="100" fill="#CC0000"/>
-				<rect x="64" y="17" width="13" height="29" fill="white"/>
-				<polygon points="50,11 91,47 9,47" fill="white"/>
-				<rect x="12" y="44" width="76" height="44" fill="white"/>
-				<polyline points="28,57 35,57 41,70 65,70 69,60 35,60"
-					fill="none" stroke="#CC0000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-				<circle cx="43" cy="76.5" r="4.5" fill="#CC0000"/>
-				<circle cx="62" cy="76.5" r="4.5" fill="#CC0000"/>
-			</svg>
+			<img src="/logo-white-on-red.svg" alt="ShopShop logo" />
 		</div>
 		<h1>ShopShop</h1>
 		<p>Create and discover unique online shops.</p>
