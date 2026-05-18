@@ -118,3 +118,19 @@ export async function getUserShops(ownerUsername: string): Promise<Shop[]> {
 	}
 	return shops;
 }
+
+export async function getShop(shopId: string): Promise<Shop | null> {
+	const kv = await getKv();
+	const entry = await kv.get<Shop>(['shops', shopId]);
+	return entry.value;
+}
+
+export async function getAllShops(): Promise<Shop[]> {
+	const kv = await getKv();
+	const shops: Shop[] = [];
+	const iter = kv.list({ prefix: ['shops'] });
+	for await (const entry of iter) {
+		if (entry.key.length === 2) shops.push(entry.value as Shop);
+	}
+	return shops;
+}

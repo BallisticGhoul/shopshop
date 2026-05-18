@@ -46,11 +46,15 @@
 
 <section class="shops">
 	<div class="inner">
-		<div class="grid">
-			{#each shops as shop (shop.id)}
-				<ShopCard {shop} />
-			{/each}
-		</div>
+		{#if shops.length === 0}
+			<p class="empty">No shops yet. <a href="/dashboard/shop/new">Create the first one!</a></p>
+		{:else}
+			<div class="grid">
+				{#each shops as shop (shop.id)}
+					<ShopCard {shop} />
+				{/each}
+			</div>
+		{/if}
 	</div>
 </section>
 
@@ -173,5 +177,18 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 		gap: 20px;
+	}
+
+	.empty {
+		color: #888;
+		font-size: 0.95rem;
+		padding: 40px 0;
+		text-align: center;
+	}
+
+	.empty a {
+		color: #cc0000;
+		font-weight: 600;
+		text-decoration: none;
 	}
 </style>
