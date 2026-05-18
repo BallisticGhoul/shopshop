@@ -9,7 +9,7 @@
 	<title>{shop.name} — ShopShop</title>
 </svelte:head>
 
-<div class="banner" style="background-image: url('{shop.bannerImage}')">
+<div class="banner" style={shop.bannerImage ? `background-image: url('${shop.bannerImage}')` : ''}>
 	<div class="banner-overlay">
 		<div class="inner">
 			<h1>{shop.name}</h1>
@@ -36,6 +36,7 @@
 	.banner {
 		background-size: cover;
 		background-position: center;
+		background-color: #d0d0d0;
 		height: 240px;
 	}
 

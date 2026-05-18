@@ -33,6 +33,7 @@
 						</div>
 						<div class="shop-actions">
 							<a href="/shops/{shop.id}">View</a>
+							<a href="/dashboard/shop/{shop.id}">Edit</a>
 						</div>
 					</li>
 				{/each}
@@ -154,6 +155,11 @@
 
 	.shop-actions {
 		padding: 0 16px;
+	}
+
+	.shop-actions {
+		display: flex;
+		gap: 12px;
 	}
 
 	.shop-actions a {

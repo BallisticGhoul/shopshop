@@ -15,8 +15,10 @@
 </script>
 
 <div class="card">
-	<div class="image">
-		<img src={product.image} alt={product.name} loading="lazy" />
+	<div
+		class="image"
+		style={product.image ? `background-image: url('${product.image}')` : ''}
+	>
 		{#if product.stock === 0}
 			<span class="sold-out">Sold out</span>
 		{/if}
@@ -50,14 +52,9 @@
 	.image {
 		position: relative;
 		height: 200px;
-		background: #f5f5f5;
-		overflow: hidden;
-	}
-
-	.image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
+		background-color: #d8d8d8;
+		background-size: cover;
+		background-position: center;
 	}
 
 	.sold-out {

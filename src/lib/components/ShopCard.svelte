@@ -5,9 +5,10 @@
 </script>
 
 <a href="/shops/{shop.id}" class="card">
-	<div class="banner">
-		<img src={shop.bannerImage} alt={shop.name} loading="lazy" />
-	</div>
+	<div
+		class="banner"
+		style={shop.bannerImage ? `background-image: url('${shop.bannerImage}')` : ''}
+	></div>
 	<div class="body">
 		<h3>{shop.name}</h3>
 		<p>{shop.description}</p>
@@ -35,14 +36,9 @@
 
 	.banner {
 		height: 160px;
-		overflow: hidden;
-		background: #f5f5f5;
-	}
-
-	.banner img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
+		background-color: #d8d8d8;
+		background-size: cover;
+		background-position: center;
 	}
 
 	.body {

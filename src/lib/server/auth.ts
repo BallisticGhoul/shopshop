@@ -1,5 +1,6 @@
 import { getKv } from './db';
-import type { User, Shop } from '$lib/types';
+import type { User, Shop, Product } from '$lib/types';
+import { mockShops, mockProducts } from '$lib/mock';
 
 async function pbkdf2(password: string, salt: Uint8Array): Promise<string> {
 	const key = await crypto.subtle.importKey(
@@ -120,6 +121,8 @@ export async function getUserShops(ownerUsername: string): Promise<Shop[]> {
 }
 
 export async function getShop(shopId: string): Promise<Shop | null> {
+	const mock = mockShops.find((s) => s.id === shopId);
+	if (mock) return mock;
 	const kv = await getKv();
 	const entry = await kv.get<Shop>(['shops', shopId]);
 	return entry.value;
@@ -127,10 +130,61 @@ export async function getShop(shopId: string): Promise<Shop | null> {
 
 export async function getAllShops(): Promise<Shop[]> {
 	const kv = await getKv();
-	const shops: Shop[] = [];
+	const shops: Shop[] = [...mockShops];
 	const iter = kv.list({ prefix: ['shops'] });
 	for await (const entry of iter) {
 		if (entry.key.length === 2) shops.push(entry.value as Shop);
 	}
 	return shops;
+}
+
+export async function updateShop(
+	shopId: string,
+	name: string,
+	description: string,
+	bannerImage: string
+): Promise<boolean> {
+	const kv = await getKv();
+	const entry = await kv.get<Shop>(['shops', shopId]);
+	if (!entry.value) return false;
+	await kv.set(['shops', shopId], { ...entry.value, name, description, bannerImage });
+	return true;
+}
+
+export async function createProduct(
+	shopId: string,
+	name: string,
+	description: string,
+	price: number,
+	image: string,
+	stock: number
+): Promise<Product> {
+	const kv = await getKv();
+	const product: Product = {
+		id: crypto.randomUUID(),
+		shopId,
+		name,
+		description,
+		price,
+		image,
+		stock
+	};
+	await kv.set(['products', shopId, product.id], product);
+	return product;
+}
+
+export async function getShopProducts(shopId: string): Promise<Product[]> {
+	if (mockProducts[shopId]) return mockProducts[shopId];
+	const kv = await getKv();
+	const products: Product[] = [];
+	const iter = kv.list({ prefix: ['products', shopId] });
+	for await (const entry of iter) {
+		products.push(entry.value as Product);
+	}
+	return products;
+}
+
+export async function deleteProduct(shopId: string, productId: string): Promise<void> {
+	const kv = await getKv();
+	await kv.delete(['products', shopId, productId]);
 }
