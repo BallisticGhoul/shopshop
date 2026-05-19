@@ -184,6 +184,28 @@ export async function getShopProducts(shopId: string): Promise<Product[]> {
 	return products;
 }
 
+export async function updateProduct(
+	shopId: string,
+	productId: string,
+	name: string,
+	description: string,
+	price: number,
+	image: string,
+	stock: number
+): Promise<void> {
+	const kv = await getKv();
+	const entry = await kv.get<Product>(['products', shopId, productId]);
+	if (!entry.value) return;
+	await kv.set(['products', shopId, productId], {
+		...entry.value,
+		name,
+		description,
+		price,
+		image,
+		stock
+	});
+}
+
 export async function deleteProduct(shopId: string, productId: string): Promise<void> {
 	const kv = await getKv();
 	await kv.delete(['products', shopId, productId]);

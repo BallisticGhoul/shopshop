@@ -3,6 +3,18 @@
 
 	let { data, form } = $props();
 	let { shop, products } = $derived(data);
+
+	// track which product has its edit form open
+	let editingId = $state<string | null>(null);
+
+	function toggleEdit(id: string) {
+		editingId = editingId === id ? null : id;
+	}
+
+	// close edit panel when a save/delete succeeds
+	$effect(() => {
+		if (form?.productEditSuccess || form?.productDeleted) editingId = null;
+	});
 </script>
 
 <svelte:head>
@@ -19,13 +31,14 @@
 			<a href="/shops/{shop.id}" class="view-btn">View shop →</a>
 		</div>
 
+		<!-- Shop details -->
 		<section class="section">
 			<h2>Shop details</h2>
 			{#if form?.editError}
-				<p class="error">{form.editError}</p>
+				<p class="msg error">{form.editError}</p>
 			{/if}
 			{#if form?.editSuccess}
-				<p class="success">Shop updated.</p>
+				<p class="msg success">Shop updated.</p>
 			{/if}
 			<form method="POST" action="?/editShop" use:enhance>
 				<label>
@@ -40,41 +53,92 @@
 					Banner image URL <span class="optional">(optional)</span>
 					<input type="url" name="bannerImage" value={shop.bannerImage} placeholder="https://..." />
 				</label>
-				<button type="submit">Save changes</button>
+				<button type="submit" class="btn-primary">Save changes</button>
 			</form>
 		</section>
 
-		<section class="section danger-zone">
-			<h2>Danger zone</h2>
-			<p class="danger-desc">Permanently delete this shop and all its products. This cannot be undone.</p>
-			<form method="POST" action="?/deleteShop" use:enhance onsubmit={(e) => { if (!confirm('Delete this shop? This cannot be undone.')) e.preventDefault(); }}>
-				<button type="submit" class="danger-btn">Delete shop</button>
-			</form>
-		</section>
-
+		<!-- Products -->
 		<section class="section">
 			<h2>Products</h2>
 
 			{#if form?.productError}
-				<p class="error">{form.productError}</p>
+				<p class="msg error">{form.productError}</p>
 			{/if}
 
 			{#if products.length > 0}
 				<ul class="products">
 					{#each products as product (product.id)}
-						<li>
-							<div
-								class="thumb"
-								style={product.image ? `background-image: url('${product.image}')` : ''}
-							></div>
-							<div class="product-info">
-								<span class="product-name">{product.name}</span>
-								<span class="product-meta">${product.price.toFixed(2)} · {product.stock} in stock</span>
+						<li class="product-item" class:open={editingId === product.id}>
+							<!-- Collapsed row -->
+							<div class="product-row">
+								<div
+									class="thumb"
+									style={product.image ? `background-image: url('${product.image}')` : ''}
+								></div>
+								<div class="product-info">
+									<span class="product-name">{product.name}</span>
+									<span class="product-meta">${product.price.toFixed(2)} · {product.stock} in stock</span>
+								</div>
+								<button
+									type="button"
+									class="edit-toggle"
+									onclick={() => toggleEdit(product.id)}
+								>
+									{editingId === product.id ? 'Close' : 'Edit'}
+								</button>
 							</div>
-							<form method="POST" action="?/deleteProduct" use:enhance>
-								<input type="hidden" name="productId" value={product.id} />
-								<button type="submit" class="delete-btn">Remove</button>
-							</form>
+
+							<!-- Expanded edit form -->
+							{#if editingId === product.id}
+								<div class="product-edit">
+									{#if form?.productEditError && form?.productEditId === product.id}
+										<p class="msg error">{form.productEditError}</p>
+									{/if}
+									{#if form?.productEditSuccess && form?.productEditId === product.id}
+										<p class="msg success">Product updated.</p>
+									{/if}
+									<form method="POST" action="?/editProduct" use:enhance class="edit-form">
+										<input type="hidden" name="productId" value={product.id} />
+										<div class="edit-row">
+											<label>
+												Name
+												<input type="text" name="name" value={product.name} required maxlength="100" />
+											</label>
+											<label class="narrow">
+												Price ($)
+												<input type="number" name="price" value={product.price} required min="0" step="0.01" />
+											</label>
+											<label class="narrow">
+												Stock
+												<input type="number" name="stock" value={product.stock} required min="0" step="1" />
+											</label>
+										</div>
+										<label>
+											Description
+											<input type="text" name="description" value={product.description} maxlength="200" placeholder="Optional" />
+										</label>
+										<label>
+											Image URL <span class="optional">(optional)</span>
+											<input type="url" name="image" value={product.image} placeholder="https://..." />
+										</label>
+										<div class="edit-actions">
+											<button type="submit" class="btn-primary">Save product</button>
+											<form
+												method="POST"
+												action="?/deleteProduct"
+												use:enhance
+												onsubmit={(e) => {
+													if (!confirm('Delete this product?')) e.preventDefault();
+												}}
+												style="margin: 0"
+											>
+												<input type="hidden" name="productId" value={product.id} />
+												<button type="submit" class="btn-danger-outline">Delete product</button>
+											</form>
+										</div>
+									</form>
+								</div>
+							{/if}
 						</li>
 					{/each}
 				</ul>
@@ -82,19 +146,23 @@
 				<p class="empty">No products yet.</p>
 			{/if}
 
+			<!-- Add product -->
 			<details class="add-product">
 				<summary>+ Add product</summary>
 				<form method="POST" action="?/addProduct" use:enhance class="product-form">
-					<div class="row">
+					{#if form?.productSuccess}
+						<p class="msg success">Product added.</p>
+					{/if}
+					<div class="edit-row">
 						<label>
 							Name
 							<input type="text" name="name" required maxlength="100" />
 						</label>
-						<label>
+						<label class="narrow">
 							Price ($)
 							<input type="number" name="price" required min="0" step="0.01" placeholder="0.00" />
 						</label>
-						<label>
+						<label class="narrow">
 							Stock
 							<input type="number" name="stock" required min="0" step="1" placeholder="0" />
 						</label>
@@ -107,9 +175,26 @@
 						Image URL <span class="optional">(optional)</span>
 						<input type="url" name="image" placeholder="https://..." />
 					</label>
-					<button type="submit">Add product</button>
+					<button type="submit" class="btn-primary">Add product</button>
 				</form>
 			</details>
+		</section>
+
+		<!-- Danger zone — always last -->
+		<section class="section danger-zone">
+			<h2>Danger zone</h2>
+			<p class="danger-desc">Permanently delete this shop and all its products. This cannot be undone.</p>
+			<form
+				method="POST"
+				action="?/deleteShop"
+				use:enhance
+				onsubmit={(e) => {
+					if (!confirm('Delete this shop and all its products? This cannot be undone.'))
+						e.preventDefault();
+				}}
+			>
+				<button type="submit" class="btn-danger-outline">Delete shop</button>
+			</form>
 		</section>
 	</div>
 </div>
@@ -120,7 +205,7 @@
 	}
 
 	.inner {
-		max-width: 680px;
+		max-width: 700px;
 		margin: 0 auto;
 	}
 
@@ -140,9 +225,7 @@
 		margin-bottom: 6px;
 	}
 
-	.back:hover {
-		color: #444;
-	}
+	.back:hover { color: #444; }
 
 	h1 {
 		margin: 0;
@@ -211,11 +294,28 @@
 		border-color: #cc0000;
 	}
 
-	textarea {
-		resize: vertical;
+	textarea { resize: vertical; }
+
+	.msg {
+		border-radius: 6px;
+		padding: 9px 12px;
+		font-size: 0.85rem;
+		margin-bottom: 4px;
 	}
 
-	button[type='submit'] {
+	.error {
+		background: #fff0f0;
+		border: 1px solid #ffcccc;
+		color: #cc0000;
+	}
+
+	.success {
+		background: #f0fff0;
+		border: 1px solid #b3e6b3;
+		color: #2a7a2a;
+	}
+
+	.btn-primary {
 		align-self: flex-start;
 		background: #cc0000;
 		color: #fff;
@@ -225,33 +325,31 @@
 		font-size: 0.875rem;
 		font-weight: 600;
 		cursor: pointer;
+		font-family: inherit;
 		transition: background 0.15s;
 	}
 
-	button[type='submit']:hover {
-		background: #aa0000;
-	}
+	.btn-primary:hover { background: #aa0000; }
 
-	.error {
-		background: #fff0f0;
-		border: 1px solid #ffcccc;
-		border-radius: 6px;
-		padding: 9px 12px;
-		font-size: 0.85rem;
+	.btn-danger-outline {
+		background: #fff;
 		color: #cc0000;
-		margin-bottom: 4px;
-	}
-
-	.success {
-		background: #f0fff0;
-		border: 1px solid #b3e6b3;
+		border: 1px solid #cc0000;
 		border-radius: 6px;
-		padding: 9px 12px;
-		font-size: 0.85rem;
-		color: #2a7a2a;
-		margin-bottom: 4px;
+		padding: 9px 18px;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		font-family: inherit;
+		transition: background 0.15s, color 0.15s;
 	}
 
+	.btn-danger-outline:hover {
+		background: #cc0000;
+		color: #fff;
+	}
+
+	/* Product list */
 	.empty {
 		font-size: 0.875rem;
 		color: #888;
@@ -267,14 +365,22 @@
 		gap: 8px;
 	}
 
-	.products li {
+	.product-item {
+		border: 1px solid #eee;
+		border-radius: 8px;
+		overflow: hidden;
+		background: #fafafa;
+	}
+
+	.product-item.open {
+		border-color: #ddd;
+		background: #fff;
+	}
+
+	.product-row {
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		background: #fafafa;
-		border: 1px solid #eee;
-		border-radius: 7px;
-		overflow: hidden;
 	}
 
 	.thumb {
@@ -291,6 +397,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
+		padding: 8px 0;
 	}
 
 	.product-name {
@@ -303,21 +410,46 @@
 		color: #888;
 	}
 
-	.delete-btn {
+	.edit-toggle {
 		background: none;
 		border: none;
-		color: #aaa;
-		font-size: 0.8rem;
+		color: #cc0000;
+		font-size: 0.82rem;
+		font-weight: 600;
 		cursor: pointer;
 		padding: 0 16px;
 		font-family: inherit;
-		transition: color 0.15s;
 	}
 
-	.delete-btn:hover {
-		color: #cc0000;
+	.edit-toggle:hover { text-decoration: underline; }
+
+	.product-edit {
+		border-top: 1px solid #eee;
+		padding: 16px;
 	}
 
+	.edit-form {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.edit-row {
+		display: grid;
+		grid-template-columns: 1fr auto auto;
+		gap: 12px;
+	}
+
+	.narrow { width: 100px; }
+
+	.edit-actions {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding-top: 4px;
+	}
+
+	/* Add product */
 	.add-product {
 		border-top: 1px solid #eee;
 		padding-top: 16px;
@@ -330,16 +462,11 @@
 		cursor: pointer;
 		user-select: none;
 		list-style: none;
-		margin-bottom: 0;
 	}
 
-	.add-product[open] summary {
-		margin-bottom: 16px;
-	}
+	.add-product[open] summary { margin-bottom: 16px; }
 
-	.add-product summary::-webkit-details-marker {
-		display: none;
-	}
+	.add-product summary::-webkit-details-marker { display: none; }
 
 	.product-form {
 		display: flex;
@@ -347,47 +474,16 @@
 		gap: 12px;
 	}
 
-	.row {
-		display: grid;
-		grid-template-columns: 1fr auto auto;
-		gap: 12px;
-	}
-
-	.row label:nth-child(2),
-	.row label:nth-child(3) {
-		width: 100px;
-	}
-
+	/* Danger zone */
 	.danger-zone {
 		border-color: #ffd0d0;
 	}
 
-	.danger-zone h2 {
-		color: #cc0000;
-	}
+	.danger-zone h2 { color: #cc0000; }
 
 	.danger-desc {
 		margin: -12px 0 16px;
 		font-size: 0.85rem;
 		color: #888;
-	}
-
-	.danger-btn {
-		align-self: flex-start;
-		background: #fff;
-		color: #cc0000;
-		border: 1px solid #cc0000;
-		border-radius: 6px;
-		padding: 9px 18px;
-		font-size: 0.875rem;
-		font-weight: 600;
-		cursor: pointer;
-		font-family: inherit;
-		transition: background 0.15s, color 0.15s;
-	}
-
-	.danger-btn:hover {
-		background: #cc0000;
-		color: #fff;
 	}
 </style>
