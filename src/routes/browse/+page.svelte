@@ -2,21 +2,41 @@
 	import ShopCard from '$lib/components/ShopCard.svelte';
 
 	let { data } = $props();
-	let { shops, currentPage, totalPages } = $derived(data);
+	let { shops, currentPage, totalPages, query, totalResults } = $derived(data);
 
 	function pageUrl(p: number) {
-		return `/browse?page=${p}`;
+		return query ? `/browse?q=${encodeURIComponent(query)}&page=${p}` : `/browse?page=${p}`;
 	}
 </script>
 
 <svelte:head>
-	<title>Browse Shops — ShopShop</title>
+	<title>{query ? `"${query}" — Browse` : 'Browse Shops'} — ShopShop</title>
 </svelte:head>
 
 <section class="header">
 	<div class="inner">
 		<h1>Browse Shops</h1>
-		<p>{totalPages > 1 ? `Page ${currentPage} of ${totalPages}` : `${shops.length} shops`}</p>
+		<form method="GET" action="/browse" class="search-form">
+			<input
+				type="search"
+				name="q"
+				value={query}
+				placeholder="Search shops and products…"
+				class="search-input"
+			/>
+			<button type="submit" class="search-btn">Search</button>
+			{#if query}
+				<a href="/browse" class="clear-btn">Clear</a>
+			{/if}
+		</form>
+		<p class="meta">
+			{#if query}
+				{totalResults} result{totalResults !== 1 ? 's' : ''} for "<strong>{query}</strong>"
+				{#if totalPages > 1}· Page {currentPage} of {totalPages}{/if}
+			{:else}
+				{totalPages > 1 ? `Page ${currentPage} of ${totalPages}` : `${totalResults} shop${totalResults !== 1 ? 's' : ''}`}
+			{/if}
+		</p>
 	</div>
 </section>
 
@@ -47,7 +67,11 @@
 <section class="shops">
 	<div class="inner">
 		{#if shops.length === 0}
-			<p class="empty">No shops yet. <a href="/dashboard/shop/new">Create the first one!</a></p>
+			{#if query}
+				<p class="empty">No shops or products matched "<strong>{query}</strong>".</p>
+			{:else}
+				<p class="empty">No shops yet. <a href="/dashboard/shop/new">Create the first one!</a></p>
+			{/if}
 		{:else}
 			<div class="grid">
 				{#each shops as shop (shop.id)}
@@ -86,7 +110,7 @@
 	.header {
 		background: #fff;
 		border-bottom: 1px solid #e8e8e8;
-		padding: 36px 24px 28px;
+		padding: 36px 24px 24px;
 	}
 
 	.inner {
@@ -95,16 +119,71 @@
 	}
 
 	h1 {
-		margin: 0 0 4px;
+		margin: 0 0 16px;
 		font-size: 1.75rem;
 		font-weight: 700;
 		letter-spacing: -0.03em;
 	}
 
-	.header p {
+	.search-form {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+
+	.search-input {
+		flex: 1;
+		max-width: 420px;
+		border: 1px solid #e0e0e0;
+		border-radius: 6px;
+		padding: 9px 14px;
+		font-size: 0.9rem;
+		font-family: inherit;
+		outline: none;
+		transition: border-color 0.15s;
+	}
+
+	.search-input:focus {
+		border-color: #cc0000;
+	}
+
+	.search-btn {
+		background: #cc0000;
+		color: #fff;
+		border: none;
+		border-radius: 6px;
+		padding: 9px 18px;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		font-family: inherit;
+		transition: background 0.15s;
+	}
+
+	.search-btn:hover {
+		background: #aa0000;
+	}
+
+	.clear-btn {
+		font-size: 0.85rem;
+		color: #888;
+		text-decoration: none;
+	}
+
+	.clear-btn:hover {
+		color: #444;
+	}
+
+	.meta {
 		margin: 0;
 		font-size: 0.875rem;
 		color: #888;
+	}
+
+	.meta strong {
+		color: #333;
+		font-weight: 600;
 	}
 
 	.pagination-bar {
@@ -132,19 +211,14 @@
 		text-decoration: none;
 	}
 
-	.arrow:hover {
-		text-decoration: underline;
-	}
+	.arrow:hover { text-decoration: underline; }
 
 	.arrow.disabled {
 		color: #ccc;
 		cursor: default;
 	}
 
-	.pages {
-		display: flex;
-		gap: 6px;
-	}
+	.pages { display: flex; gap: 6px; }
 
 	.pages a {
 		width: 32px;
@@ -160,18 +234,10 @@
 		border: 1px solid transparent;
 	}
 
-	.pages a:hover {
-		border-color: #e0e0e0;
-	}
+	.pages a:hover { border-color: #e0e0e0; }
+	.pages a.active { background: #cc0000; color: #fff; }
 
-	.pages a.active {
-		background: #cc0000;
-		color: #fff;
-	}
-
-	.shops {
-		padding: 32px 24px;
-	}
+	.shops { padding: 32px 24px; }
 
 	.grid {
 		display: grid;
@@ -190,5 +256,9 @@
 		color: #cc0000;
 		font-weight: 600;
 		text-decoration: none;
+	}
+
+	.empty strong {
+		color: #555;
 	}
 </style>
