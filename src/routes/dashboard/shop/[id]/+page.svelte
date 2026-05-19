@@ -4,14 +4,12 @@
 	let { data, form } = $props();
 	let { shop, products } = $derived(data);
 
-	// track which product has its edit form open
 	let editingId = $state<string | null>(null);
 
 	function toggleEdit(id: string) {
 		editingId = editingId === id ? null : id;
 	}
 
-	// close edit panel when a save/delete succeeds
 	$effect(() => {
 		if (form?.productEditSuccess || form?.productDeleted) editingId = null;
 	});
@@ -23,6 +21,7 @@
 
 <div class="page">
 	<div class="inner">
+
 		<div class="top">
 			<div>
 				<a href="/dashboard" class="back">← Dashboard</a>
@@ -31,7 +30,7 @@
 			<a href="/shops/{shop.id}" class="view-btn">View shop →</a>
 		</div>
 
-		<!-- Shop details -->
+		<!-- ── Shop details ── -->
 		<section class="section">
 			<h2>Shop details</h2>
 			{#if form?.editError}
@@ -57,7 +56,7 @@
 			</form>
 		</section>
 
-		<!-- Products -->
+		<!-- ── Products ── -->
 		<section class="section">
 			<h2>Products</h2>
 
@@ -69,26 +68,20 @@
 				<ul class="products">
 					{#each products as product (product.id)}
 						<li class="product-item" class:open={editingId === product.id}>
-							<!-- Collapsed row -->
+
+							<!-- collapsed row -->
 							<div class="product-row">
-								<div
-									class="thumb"
-									style={product.image ? `background-image: url('${product.image}')` : ''}
-								></div>
+								<div class="thumb" style={product.image ? `background-image: url('${product.image}')` : ''}></div>
 								<div class="product-info">
 									<span class="product-name">{product.name}</span>
 									<span class="product-meta">${product.price.toFixed(2)} · {product.stock} in stock</span>
 								</div>
-								<button
-									type="button"
-									class="edit-toggle"
-									onclick={() => toggleEdit(product.id)}
-								>
+								<button type="button" class="edit-toggle" onclick={() => toggleEdit(product.id)}>
 									{editingId === product.id ? 'Close' : 'Edit'}
 								</button>
 							</div>
 
-							<!-- Expanded edit form -->
+							<!-- expanded edit panel -->
 							{#if editingId === product.id}
 								<div class="product-edit">
 									{#if form?.productEditError && form?.productEditId === product.id}
@@ -97,6 +90,7 @@
 									{#if form?.productEditSuccess && form?.productEditId === product.id}
 										<p class="msg success">Product updated.</p>
 									{/if}
+
 									<form method="POST" action="?/editProduct" use:enhance class="edit-form">
 										<input type="hidden" name="productId" value={product.id} />
 										<div class="edit-row">
@@ -121,24 +115,22 @@
 											Image URL <span class="optional">(optional)</span>
 											<input type="url" name="image" value={product.image} placeholder="https://..." />
 										</label>
-										<div class="edit-actions">
-											<button type="submit" class="btn-primary">Save product</button>
-											<form
-												method="POST"
-												action="?/deleteProduct"
-												use:enhance
-												onsubmit={(e) => {
-													if (!confirm('Delete this product?')) e.preventDefault();
-												}}
-												style="margin: 0"
-											>
-												<input type="hidden" name="productId" value={product.id} />
-												<button type="submit" class="btn-danger-outline">Delete product</button>
-											</form>
-										</div>
+										<button type="submit" class="btn-primary">Save product</button>
+									</form>
+
+									<form
+										method="POST"
+										action="?/deleteProduct"
+										use:enhance
+										onsubmit={(e) => { if (!confirm('Delete this product?')) e.preventDefault(); }}
+										class="delete-product-form"
+									>
+										<input type="hidden" name="productId" value={product.id} />
+										<button type="submit" class="btn-danger-outline">Delete product</button>
 									</form>
 								</div>
 							{/if}
+
 						</li>
 					{/each}
 				</ul>
@@ -146,10 +138,9 @@
 				<p class="empty">No products yet.</p>
 			{/if}
 
-			<!-- Add product -->
 			<details class="add-product">
 				<summary>+ Add product</summary>
-				<form method="POST" action="?/addProduct" use:enhance class="product-form">
+				<form method="POST" action="?/addProduct" use:enhance class="add-form">
 					{#if form?.productSuccess}
 						<p class="msg success">Product added.</p>
 					{/if}
@@ -180,7 +171,7 @@
 			</details>
 		</section>
 
-		<!-- Danger zone — always last -->
+		<!-- ── Danger zone (always last) ── -->
 		<section class="section danger-zone">
 			<h2>Danger zone</h2>
 			<p class="danger-desc">Permanently delete this shop and all its products. This cannot be undone.</p>
@@ -188,21 +179,17 @@
 				method="POST"
 				action="?/deleteShop"
 				use:enhance
-				onsubmit={(e) => {
-					if (!confirm('Delete this shop and all its products? This cannot be undone.'))
-						e.preventDefault();
-				}}
+				onsubmit={(e) => { if (!confirm('Delete this shop and all its products? This cannot be undone.')) e.preventDefault(); }}
 			>
 				<button type="submit" class="btn-danger-outline">Delete shop</button>
 			</form>
 		</section>
+
 	</div>
 </div>
 
 <style>
-	.page {
-		padding: 40px 24px;
-	}
+	.page { padding: 40px 24px; }
 
 	.inner {
 		max-width: 700px;
@@ -224,7 +211,6 @@
 		text-decoration: none;
 		margin-bottom: 6px;
 	}
-
 	.back:hover { color: #444; }
 
 	h1 {
@@ -272,13 +258,9 @@
 		color: #444;
 	}
 
-	.optional {
-		font-weight: 400;
-		color: #aaa;
-	}
+	.optional { font-weight: 400; color: #aaa; }
 
-	input,
-	textarea {
+	input, textarea {
 		border: 1px solid #e0e0e0;
 		border-radius: 5px;
 		padding: 9px 12px;
@@ -288,32 +270,17 @@
 		transition: border-color 0.15s;
 		background: #fff;
 	}
-
-	input:focus,
-	textarea:focus {
-		border-color: #cc0000;
-	}
-
+	input:focus, textarea:focus { border-color: #cc0000; }
 	textarea { resize: vertical; }
 
 	.msg {
 		border-radius: 6px;
 		padding: 9px 12px;
 		font-size: 0.85rem;
-		margin-bottom: 4px;
+		margin-bottom: 2px;
 	}
-
-	.error {
-		background: #fff0f0;
-		border: 1px solid #ffcccc;
-		color: #cc0000;
-	}
-
-	.success {
-		background: #f0fff0;
-		border: 1px solid #b3e6b3;
-		color: #2a7a2a;
-	}
+	.error  { background: #fff0f0; border: 1px solid #ffcccc; color: #cc0000; }
+	.success { background: #f0fff0; border: 1px solid #b3e6b3; color: #2a7a2a; }
 
 	.btn-primary {
 		align-self: flex-start;
@@ -328,10 +295,10 @@
 		font-family: inherit;
 		transition: background 0.15s;
 	}
-
 	.btn-primary:hover { background: #aa0000; }
 
 	.btn-danger-outline {
+		align-self: flex-start;
 		background: #fff;
 		color: #cc0000;
 		border: 1px solid #cc0000;
@@ -343,18 +310,10 @@
 		font-family: inherit;
 		transition: background 0.15s, color 0.15s;
 	}
+	.btn-danger-outline:hover { background: #cc0000; color: #fff; }
 
-	.btn-danger-outline:hover {
-		background: #cc0000;
-		color: #fff;
-	}
-
-	/* Product list */
-	.empty {
-		font-size: 0.875rem;
-		color: #888;
-		margin: 0 0 16px;
-	}
+	/* Products list */
+	.empty { font-size: 0.875rem; color: #888; margin: 0 0 16px; }
 
 	.products {
 		list-style: none;
@@ -371,11 +330,7 @@
 		overflow: hidden;
 		background: #fafafa;
 	}
-
-	.product-item.open {
-		border-color: #ddd;
-		background: #fff;
-	}
+	.product-item.open { border-color: #ddd; background: #fff; }
 
 	.product-row {
 		display: flex;
@@ -397,18 +352,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
-		padding: 8px 0;
+		padding: 10px 0;
 	}
 
-	.product-name {
-		font-size: 0.9rem;
-		font-weight: 600;
-	}
-
-	.product-meta {
-		font-size: 0.78rem;
-		color: #888;
-	}
+	.product-name { font-size: 0.9rem; font-weight: 600; }
+	.product-meta { font-size: 0.78rem; color: #888; }
 
 	.edit-toggle {
 		background: none;
@@ -420,15 +368,23 @@
 		padding: 0 16px;
 		font-family: inherit;
 	}
-
 	.edit-toggle:hover { text-decoration: underline; }
 
 	.product-edit {
 		border-top: 1px solid #eee;
 		padding: 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
 	}
 
 	.edit-form {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.add-form {
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
@@ -442,18 +398,10 @@
 
 	.narrow { width: 100px; }
 
-	.edit-actions {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		padding-top: 4px;
-	}
+	.delete-product-form { margin: 0; }
 
 	/* Add product */
-	.add-product {
-		border-top: 1px solid #eee;
-		padding-top: 16px;
-	}
+	.add-product { border-top: 1px solid #eee; padding-top: 16px; }
 
 	.add-product summary {
 		font-size: 0.875rem;
@@ -463,22 +411,11 @@
 		user-select: none;
 		list-style: none;
 	}
-
 	.add-product[open] summary { margin-bottom: 16px; }
-
 	.add-product summary::-webkit-details-marker { display: none; }
 
-	.product-form {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	}
-
 	/* Danger zone */
-	.danger-zone {
-		border-color: #ffd0d0;
-	}
-
+	.danger-zone { border-color: #ffd0d0; }
 	.danger-zone h2 { color: #cc0000; }
 
 	.danger-desc {
