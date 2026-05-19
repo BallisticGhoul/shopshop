@@ -28,8 +28,6 @@
 					autocomplete="username"
 					minlength="3"
 					maxlength="32"
-					pattern="[a-zA-Z0-9_-]+"
-					title="Letters, numbers, underscores and hyphens only"
 				/>
 			</label>
 			<label>

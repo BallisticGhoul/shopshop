@@ -9,21 +9,16 @@ export function load({ locals }) {
 export const actions = {
 	default: async ({ request, cookies }) => {
 		const data = await request.formData();
-		const username = (data.get('username') as string)?.trim();
+		// bug 13: no .trim() — trailing spaces create an unreachable account
+		const username = data.get('username') as string;
 		const password = data.get('password') as string;
 		const confirm = data.get('confirm') as string;
 
 		if (!username || !password) {
 			return fail(400, { error: 'All fields are required.' });
 		}
-		if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-			return fail(400, { error: 'Username may only contain letters, numbers, _ and -.' });
-		}
 		if (username.length < 3) {
 			return fail(400, { error: 'Username must be at least 3 characters.' });
-		}
-		if (password.length < 8) {
-			return fail(400, { error: 'Password must be at least 8 characters.' });
 		}
 		if (password !== confirm) {
 			return fail(400, { error: 'Passwords do not match.' });

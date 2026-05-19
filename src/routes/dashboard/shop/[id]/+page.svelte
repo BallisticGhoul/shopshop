@@ -100,7 +100,7 @@
 											</label>
 											<label class="narrow">
 												Price ($)
-												<input type="number" name="price" value={product.price} required min="0" step="0.01" />
+												<input type="number" name="price" value={product.price} required min="0" step="any" />
 											</label>
 											<label class="narrow">
 												Stock
@@ -151,7 +151,7 @@
 						</label>
 						<label class="narrow">
 							Price ($)
-							<input type="number" name="price" required min="0" step="0.01" placeholder="0.00" />
+							<input type="number" name="price" required min="0" step="any" placeholder="0.00" />
 						</label>
 						<label class="narrow">
 							Stock

@@ -87,7 +87,8 @@
 					</ul>
 					<div class="total-row">
 						<span>Total</span>
-						<span class="total">${cart.total.toFixed(2)}</span>
+						<!-- bug 7: raw float, no rounding -->
+					<span class="total">${cart.total}</span>
 					</div>
 				</div>
 			</div>
