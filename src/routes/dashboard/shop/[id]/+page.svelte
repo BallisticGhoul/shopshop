@@ -30,7 +30,6 @@
 			<a href="/shops/{shop.id}" class="view-btn">View shop →</a>
 		</div>
 
-		<!-- ── Shop details ── -->
 		<section class="section">
 			<h2>Shop details</h2>
 			{#if form?.editError}
@@ -56,7 +55,6 @@
 			</form>
 		</section>
 
-		<!-- ── Products ── -->
 		<section class="section">
 			<h2>Products</h2>
 
@@ -69,7 +67,6 @@
 					{#each products as product (product.id)}
 						<li class="product-item" class:open={editingId === product.id}>
 
-							<!-- collapsed row -->
 							<div class="product-row">
 								<div class="thumb" style={product.image ? `background-image: url('${product.image}')` : ''}></div>
 								<div class="product-info">
@@ -81,7 +78,6 @@
 								</button>
 							</div>
 
-							<!-- expanded edit panel -->
 							{#if editingId === product.id}
 								<div class="product-edit">
 									{#if form?.productEditError && form?.productEditId === product.id}
@@ -171,7 +167,6 @@
 			</details>
 		</section>
 
-		<!-- ── Danger zone (always last) ── -->
 		<section class="section danger-zone">
 			<h2>Danger zone</h2>
 			<p class="danger-desc">Permanently delete this shop and all its products. This cannot be undone.</p>

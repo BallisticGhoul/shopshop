@@ -48,8 +48,7 @@
 				<div class="summary">
 					<div class="total-row">
 						<span>Total</span>
-						<!-- bug 7: raw float, no rounding -->
-					<span class="total">${cart.total}</span>
+						<span class="total">${cart.total}</span>
 					</div>
 					<p class="disclaimer">No real money will be charged.</p>
 					<a href="/checkout" class="checkout-btn">Proceed to checkout</a>

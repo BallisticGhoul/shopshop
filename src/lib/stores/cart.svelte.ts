@@ -13,7 +13,6 @@ export const cart = {
 		return items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
 	},
 	add(product: Product, shopName: string) {
-		// bug 3: collide on name (case-insensitive) instead of id
 		const existing = items.find(
 			(i) => i.product.name.toLowerCase() === product.name.toLowerCase()
 		);
@@ -28,7 +27,6 @@ export const cart = {
 		if (idx !== -1) items.splice(idx, 1);
 	},
 	setQuantity(productId: string, quantity: number) {
-		// bug 8: allow quantity 0, never auto-remove
 		const item = items.find((i) => i.product.id === productId);
 		if (item) item.quantity = quantity;
 	},

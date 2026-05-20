@@ -9,7 +9,6 @@ export function load({ locals }) {
 export const actions = {
 	default: async ({ request, cookies }) => {
 		const data = await request.formData();
-		// bug 13: no .trim() — trailing spaces create an unreachable account
 		const username = data.get('username') as string;
 		const password = data.get('password') as string;
 		const confirm = data.get('confirm') as string;

@@ -87,8 +87,7 @@
 					</ul>
 					<div class="total-row">
 						<span>Total</span>
-						<!-- bug 7: raw float, no rounding -->
-					<span class="total">${cart.total}</span>
+						<span class="total">${cart.total}</span>
 					</div>
 				</div>
 			</div>
