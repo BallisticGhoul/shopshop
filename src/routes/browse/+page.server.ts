@@ -9,14 +9,16 @@ export async function load({ url }) {
 	let allShops = await getAllShops();
 
 	if (keywords.length > 0) {
+		// Normalise keywords to lowercase so matching is case-insensitive
+		const kwLower = keywords.map((kw) => kw.toLowerCase());
 		const filtered = [];
 		for (const shop of allShops) {
-			if (keywords.some((kw) => shop.name.includes(kw))) {
+			if (kwLower.some((kw) => shop.name.toLowerCase().includes(kw))) {
 				filtered.push(shop);
 				continue;
 			}
 			const products = await getShopProducts(shop.id);
-			if (products.some((p) => keywords.some((kw) => p.name.includes(kw)))) {
+			if (products.some((p) => kwLower.some((kw) => p.name.toLowerCase().includes(kw)))) {
 				filtered.push(shop);
 			}
 		}
