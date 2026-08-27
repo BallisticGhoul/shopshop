@@ -16,7 +16,7 @@ test('login with invalid credentials shows error message', async ({ page }) => {
 	await page.goto('/login');
 	await page.locator('input[name="username"]').fill('definitely_not_a_user');
 	await page.locator('input[name="password"]').fill('wrongpassword123');
-	await page.getByRole('button', { name: 'Log in' })).click();
+	await page.getByRole('button', { name: 'Log in' }).click();
 	// Should stay on /login and display an error
 	await expect(page).toHaveURL(/\/login/);
 	await expect(page.locator('.error')).toBeVisible();
