@@ -27,3 +27,8 @@ vite.config.ts.timestamp-*
 /test-results
 /playwright-report
 /playwright/.cache
+
+# Cypress
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads

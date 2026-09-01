@@ -40,3 +40,38 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Testing
+
+This project has two end-to-end suites that run against the same dev server.
+
+**Playwright** starts the dev server itself:
+
+```sh
+npm run test:e2e
+```
+
+**Cypress** expects the dev server to already be running on
+`http://localhost:5173`, so start it in a separate terminal first:
+
+```sh
+npm run dev
+```
+
+Then run the suite headlessly, or open the interactive runner:
+
+```sh
+npm run test:cypress
+```
+
+```sh
+npm run cypress:open
+```
+
+Dependencies are installed with Deno (`deno install`), which is what populates
+`node_modules`. Cypress needs its post-install script to download the test
+runner binary, so allow it explicitly:
+
+```sh
+deno install --allow-scripts=npm:cypress
+```
