@@ -1,18 +1,42 @@
-let _kv: any = null;
+/**
+ * Deno KV when it is available (Deno Deploy, `deno task`), otherwise an
+ * in-memory stand-in so `vite dev` and tests work without it.
+ *
+ * Note: the in-memory store lives and dies with the process, so sessions do
+ * not survive a dev-server restart.
+ */
 
-function createMemoryKv() {
-	const store = new Map<string, { value: any; expires?: number }>();
+export interface KvEntry<T> {
+	value: T | null;
+}
+
+export interface KvListEntry {
+	key: unknown[];
+	value: unknown;
+}
+
+export interface KvLike {
+	get<T = unknown>(key: unknown[]): Promise<KvEntry<T>>;
+	set(key: unknown[], value: unknown, opts?: { expireIn?: number }): Promise<void>;
+	delete(key: unknown[]): Promise<void>;
+	list(selector: { prefix: unknown[] }): AsyncIterable<KvListEntry>;
+}
+
+let _kv: KvLike | null = null;
+
+function createMemoryKv(): KvLike {
+	const store = new Map<string, { value: unknown; expires?: number }>();
 	const ser = (key: unknown[]) => JSON.stringify(key);
 
 	return {
-		get(key: unknown[]) {
+		get<T>(key: unknown[]): Promise<KvEntry<T>> {
 			const entry = store.get(ser(key));
 			if (!entry) return Promise.resolve({ value: null });
 			if (entry.expires && Date.now() > entry.expires) {
 				store.delete(ser(key));
 				return Promise.resolve({ value: null });
 			}
-			return Promise.resolve({ value: entry.value });
+			return Promise.resolve({ value: entry.value as T });
 		},
 		set(key: unknown[], value: unknown, opts?: { expireIn?: number }) {
 			store.set(ser(key), {
@@ -40,10 +64,10 @@ function createMemoryKv() {
 	};
 }
 
-export async function getKv(): Promise<any> {
+export async function getKv(): Promise<KvLike> {
 	if (!_kv) {
 		try {
-			const openKv: () => Promise<any> = Function('return Deno.openKv.bind(Deno)')();
+			const openKv: () => Promise<KvLike> = Function('return Deno.openKv.bind(Deno)')();
 			_kv = await openKv();
 		} catch {
 			_kv = createMemoryKv();
