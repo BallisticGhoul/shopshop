@@ -32,3 +32,6 @@ vite.config.ts.timestamp-*
 /cypress/screenshots
 /cypress/videos
 /cypress/downloads
+
+# Playwright auth state
+/playwright/.auth

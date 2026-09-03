@@ -10,7 +10,23 @@ export default defineConfig({
 	},
 	projects: [
 		{
+			name: 'setup',
+			testMatch: /.*\.setup\.ts/
+		},
+		{
 			name: 'chromium',
+			testIgnore: /.*\.anon\.spec\.ts/,
+			use: {
+				...devices['Desktop Chrome'],
+				// Every spec starts already signed in, courtesy of the setup project.
+				storageState: 'playwright/.auth/user.json'
+			},
+			dependencies: ['setup']
+		},
+		{
+			// For specs that must start signed out (registration, magic link).
+			name: 'chromium-anon',
+			testMatch: /.*\.anon\.spec\.ts/,
 			use: { ...devices['Desktop Chrome'] }
 		}
 	],
