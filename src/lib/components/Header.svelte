@@ -10,6 +10,11 @@
 		<a href="/" class="logo">ShopShop</a>
 		<nav>
 			<a href="/browse" class:active={$page.url.pathname.startsWith('/browse')}>Browse</a>
+			<a
+				href="/inbox"
+				class:active={$page.url.pathname.startsWith('/inbox')}
+				data-testid="nav-inbox">Inbox</a
+			>
 		</nav>
 		<div class="right">
 			{#if user}

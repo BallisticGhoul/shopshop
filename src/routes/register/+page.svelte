@@ -31,6 +31,10 @@
 				/>
 			</label>
 			<label>
+				Email
+				<input type="email" name="email" required autocomplete="email" />
+			</label>
+			<label>
 				Password
 				<div class="input-wrap">
 					<input

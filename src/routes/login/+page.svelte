@@ -55,6 +55,7 @@
 			<button type="submit">Log in</button>
 		</form>
 
+		<p class="switch"><a href="/login/email" data-testid="use-magic-link">Sign in with an email link instead</a></p>
 		<p class="switch">Don't have an account? <a href="/register">Register</a></p>
 	</div>
 </div>

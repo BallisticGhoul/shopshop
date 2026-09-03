@@ -14,7 +14,10 @@
 				<h1>Welcome, {user.username}</h1>
 				<p>Manage your shops below.</p>
 			</div>
-			<a href="/dashboard/shop/new" class="new-btn">+ New Shop</a>
+			<div class="top-actions">
+				<a href="/dashboard/security" class="security-link" data-testid="nav-security">Security</a>
+				<a href="/dashboard/shop/new" class="new-btn">+ New Shop</a>
+			</div>
 		</div>
 
 		{#if shops.length === 0}
@@ -167,5 +170,23 @@
 		font-weight: 600;
 		color: #cc0000;
 		text-decoration: none;
+	}
+
+	.top-actions {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.security-link {
+		color: #666;
+		font-size: 0.85rem;
+		font-weight: 600;
+		text-decoration: none;
+		padding: 8px 4px;
+	}
+
+	.security-link:hover {
+		color: #cc0000;
 	}
 </style>

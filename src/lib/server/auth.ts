@@ -32,20 +32,33 @@ export async function verifyPassword(
 	return (await pbkdf2(password, salt)) === hash;
 }
 
-export async function createUser(username: string, password: string): Promise<User | null> {
+export async function createUser(
+	username: string,
+	email: string,
+	password: string
+): Promise<User | null> {
 	const kv = await getKv();
-	const existing = await kv.get(['users', username.toLowerCase()]);
+	const key = username.toLowerCase();
+	const emailKey = email.trim().toLowerCase();
+
+	const existing = await kv.get(['users', key]);
 	if (existing.value) return null;
+	const emailTaken = await kv.get(['users_by_email', emailKey]);
+	if (emailTaken.value) return null;
 
 	const { hash, salt } = await hashPassword(password);
 	const user: User = {
 		id: crypto.randomUUID(),
 		username,
+		email: emailKey,
+		emailVerified: false,
 		passwordHash: hash,
 		salt,
+		totpEnabled: false,
 		createdAt: new Date().toISOString()
 	};
-	await kv.set(['users', username.toLowerCase()], user);
+	await kv.set(['users', key], user);
+	await kv.set(['users_by_email', emailKey], key);
 	return user;
 }
 
@@ -53,6 +66,19 @@ export async function getUser(username: string): Promise<User | null> {
 	const kv = await getKv();
 	const entry = await kv.get<User>(['users', username.toLowerCase()]);
 	return entry.value;
+}
+
+export async function getUserByEmail(email: string): Promise<User | null> {
+	const kv = await getKv();
+	const entry = await kv.get<string>(['users_by_email', email.trim().toLowerCase()]);
+	return entry.value ? getUser(entry.value) : null;
+}
+
+/** Persist changes to a user record. Username is the key, so it cannot change here. */
+export async function saveUser(user: User): Promise<void> {
+	const kv = await getKv();
+	await kv.set(['users', user.username.toLowerCase()], user);
+	await kv.set(['users_by_email', user.email], user.username.toLowerCase());
 }
 
 export async function verifyCredentials(
@@ -87,6 +113,39 @@ export async function getSession(
 export async function deleteSession(sessionId: string): Promise<void> {
 	const kv = await getKv();
 	await kv.delete(['sessions', sessionId]);
+}
+
+/**
+ * Half-authenticated state: the password was correct but the second factor is
+ * outstanding. Deliberately stored under a different KV prefix and carried in a
+ * different cookie from a real session, so a pending token can never be
+ * mistaken for an authenticated one by getSession().
+ */
+const PENDING_MFA_TTL_MS = 10 * 60 * 1000;
+
+export async function createPendingMfa(userId: string, username: string): Promise<string> {
+	const kv = await getKv();
+	const token = crypto.randomUUID();
+	await kv.set(
+		['pending_mfa', token],
+		{ userId, username, createdAt: new Date().toISOString() },
+		{ expireIn: PENDING_MFA_TTL_MS }
+	);
+	return token;
+}
+
+export async function getPendingMfa(
+	token: string
+): Promise<{ id: string; username: string } | null> {
+	const kv = await getKv();
+	const entry = await kv.get<{ userId: string; username: string }>(['pending_mfa', token]);
+	if (!entry.value) return null;
+	return { id: entry.value.userId, username: entry.value.username };
+}
+
+export async function deletePendingMfa(token: string): Promise<void> {
+	const kv = await getKv();
+	await kv.delete(['pending_mfa', token]);
 }
 
 export async function createShop(
