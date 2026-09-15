@@ -149,3 +149,26 @@ caches and restores the same cookie jar. See `cypress/e2e/auth-bypass.cy.ts`.
 > hydration reassigns values rendered from server data. The root layout sets
 > `<html data-hydrated>` once the client takes over; `waitForHydration()` in
 > `tests/helpers.ts` waits for it before interacting with such forms.
+
+## Sorting and filtering a shop's products
+
+A shop page (`/shops/<id>`) has a toolbar above its product grid. Both controls
+are ordinary GET form fields, so the state lives entirely in the URL and a
+deep link reproduces the view exactly.
+
+| Param | Values | Meaning |
+| --- | --- | --- |
+| `sort` | `featured` (default), `price-asc`, `price-desc`, `name` | Order of the grid. `featured` keeps the shop's own order. |
+| `instock` | `1`, or absent | When `1`, products with `stock === 0` are hidden. |
+
+An unrecognised `sort` value falls back to `featured` rather than erroring, so
+a hand-typed URL never 500s.
+
+The toolbar submits on `change` once the page has hydrated; the **Apply**
+button submits it before then, so the feature works without JavaScript. Test
+hooks: `product-toolbar`, `sort-select`, `instock-toggle`, `product-count`
+(reads "Showing X of Y products"), `no-matches`, and on each card
+`product-card`, `product-name`, `product-price`.
+
+The sort and filter themselves are a pure function, `arrangeProducts()` in
+`src/lib/products.ts`, which the page load calls after reading the products.
