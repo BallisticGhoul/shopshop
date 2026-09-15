@@ -14,7 +14,7 @@
 	}
 </script>
 
-<div class="card">
+<div class="card" data-testid="product-card">
 	<div
 		class="image"
 		style={product.image ? `background-image: url('${product.image}')` : ''}
@@ -24,10 +24,10 @@
 		{/if}
 	</div>
 	<div class="body">
-		<h4>{product.name}</h4>
+		<h4 data-testid="product-name">{product.name}</h4>
 		<p>{product.description}</p>
 		<div class="footer">
-			<span class="price">${product.price.toFixed(2)}</span>
+			<span class="price" data-testid="product-price">${product.price.toFixed(2)}</span>
 			<button
 				onclick={addToCart}
 				disabled={product.stock === 0}

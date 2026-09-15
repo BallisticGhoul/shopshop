@@ -1,8 +1,19 @@
 <script lang="ts">
 	import ProductCard from '$lib/components/ProductCard.svelte';
+	import { SORT_OPTIONS } from '$lib/products';
 
 	let { data } = $props();
-	let { shop, products } = $derived(data);
+	let { shop, products, sort, inStockOnly, totalProducts } = $derived(data);
+
+	let form: HTMLFormElement;
+
+	/**
+	 * Submit as soon as a control changes, so the toolbar feels live. It stays a
+	 * plain GET form, so the Apply button still works before hydration.
+	 */
+	function apply() {
+		form.requestSubmit();
+	}
 </script>
 
 <svelte:head>
@@ -20,8 +31,44 @@
 
 <section class="products">
 	<div class="inner">
-		{#if products.length === 0}
+		{#if totalProducts > 0}
+			<form method="GET" class="toolbar" data-testid="product-toolbar" bind:this={form}>
+				<label class="field">
+					<span>Sort by</span>
+					<select name="sort" value={sort} data-testid="sort-select" onchange={apply}>
+						{#each SORT_OPTIONS as option (option.value)}
+							<option value={option.value}>{option.label}</option>
+						{/each}
+					</select>
+				</label>
+
+				<label class="check">
+					<input
+						type="checkbox"
+						name="instock"
+						value="1"
+						checked={inStockOnly}
+						data-testid="instock-toggle"
+						onchange={apply}
+					/>
+					<span>In stock only</span>
+				</label>
+
+				<button type="submit" class="apply">Apply</button>
+
+				<p class="count" data-testid="product-count">
+					Showing {products.length} of {totalProducts} product{totalProducts !== 1 ? 's' : ''}
+				</p>
+			</form>
+		{/if}
+
+		{#if totalProducts === 0}
 			<p class="empty">This shop has no products yet.</p>
+		{:else if products.length === 0}
+			<p class="empty" data-testid="no-matches">
+				No products match the current filters.
+				<a href="/shops/{shop.id}">Reset filters</a>
+			</p>
 		{:else}
 			<div class="grid">
 				{#each products as product (product.id)}
@@ -76,6 +123,77 @@
 		padding: 36px 24px;
 	}
 
+	.toolbar {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		flex-wrap: wrap;
+		margin-bottom: 24px;
+		padding-bottom: 16px;
+		border-bottom: 1px solid #e8e8e8;
+	}
+
+	.field {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 0.85rem;
+		color: #666;
+	}
+
+	.field select {
+		border: 1px solid #e0e0e0;
+		border-radius: 6px;
+		padding: 7px 10px;
+		font-size: 0.85rem;
+		font-family: inherit;
+		background: #fff;
+		color: #1a1a1a;
+		cursor: pointer;
+	}
+
+	.field select:focus {
+		outline: none;
+		border-color: #cc0000;
+	}
+
+	.check {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 0.85rem;
+		color: #666;
+		cursor: pointer;
+	}
+
+	.check input {
+		accent-color: #cc0000;
+		cursor: pointer;
+	}
+
+	.apply {
+		background: #cc0000;
+		color: #fff;
+		border: none;
+		border-radius: 6px;
+		padding: 7px 16px;
+		font-size: 0.8rem;
+		font-weight: 600;
+		font-family: inherit;
+		cursor: pointer;
+		transition: background 0.15s;
+	}
+
+	.apply:hover {
+		background: #aa0000;
+	}
+
+	.count {
+		margin: 0 0 0 auto;
+		font-size: 0.85rem;
+		color: #888;
+	}
+
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -85,5 +203,11 @@
 	.empty {
 		color: #888;
 		font-size: 0.95rem;
+	}
+
+	.empty a {
+		color: #cc0000;
+		font-weight: 600;
+		text-decoration: none;
 	}
 </style>
