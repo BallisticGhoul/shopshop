@@ -21,6 +21,7 @@
 			<p class="welcome">Welcome back, <strong>{user.username}</strong>.</p>
 			<div class="actions">
 				<a href="/browse" class="btn primary">Browse Shops</a>
+				<a href="/dashboard/for-you" class="btn outline" data-testid="home-for-you">For You</a>
 				<a href="/dashboard" class="btn secondary">My Dashboard</a>
 				<a href="/dashboard/shop/new" class="btn secondary">Create a Shop</a>
 			</div>

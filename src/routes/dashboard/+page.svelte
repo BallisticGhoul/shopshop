@@ -16,6 +16,7 @@
 			</div>
 			<div class="top-actions">
 				<a href="/dashboard/security" class="security-link" data-testid="nav-security">Security</a>
+				<a href="/dashboard/for-you" class="for-you-btn" data-testid="nav-for-you">For You</a>
 				<a href="/dashboard/shop/new" class="new-btn">+ New Shop</a>
 			</div>
 		</div>
@@ -184,6 +185,23 @@
 		font-weight: 600;
 		text-decoration: none;
 		padding: 8px 4px;
+	}
+
+	.for-you-btn {
+		color: #cc0000;
+		border: 2px solid #cc0000;
+		text-decoration: none;
+		padding: 8px 16px;
+		border-radius: 6px;
+		font-size: 0.875rem;
+		font-weight: 600;
+		white-space: nowrap;
+		transition: background 0.15s, color 0.15s;
+	}
+
+	.for-you-btn:hover {
+		background: #cc0000;
+		color: #fff;
 	}
 
 	.security-link:hover {
