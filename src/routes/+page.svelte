@@ -28,6 +28,7 @@
 		{:else}
 			<div class="actions">
 				<a href="/browse" class="btn primary">Browse Shops</a>
+				<a href="/dashboard/for-you" class="btn outline" data-testid="home-for-you">For You</a>
 				<a href="/login" class="btn secondary">Log In</a>
 				<a href="/dashboard/shop/new" class="btn outline">Create a Shop</a>
 			</div>
