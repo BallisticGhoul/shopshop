@@ -78,7 +78,7 @@ export const actions = {
 		const data = await request.formData();
 		const productId = data.get('productId') as string;
 		if (productId) await deleteProduct(params.id, productId);
-		return {};
+		return { productDeleted: true };
 	},
 
 	deleteShop: async ({ params, locals }) => {

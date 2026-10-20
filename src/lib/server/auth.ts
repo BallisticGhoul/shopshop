@@ -2,7 +2,7 @@ import { getKv } from './db';
 import type { User, Shop, Product } from '$lib/types';
 import { mockShops, mockProducts } from '$lib/mock';
 
-async function pbkdf2(password: string, salt: Uint8Array): Promise<string> {
+async function pbkdf2(password: string, salt: Uint8Array<ArrayBuffer>): Promise<string> {
 	const key = await crypto.subtle.importKey(
 		'raw',
 		new TextEncoder().encode(password),

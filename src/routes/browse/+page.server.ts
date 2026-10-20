@@ -4,19 +4,19 @@ const PAGE_SIZE = 9;
 
 export async function load({ url }) {
 	const query = url.searchParams.get('q')?.trim() ?? '';
-	const keywords = query.split(/\s+/).filter(Boolean);
+	const keywords = query.toLowerCase().split(/\s+/).filter(Boolean);
 
 	let allShops = await getAllShops();
 
 	if (keywords.length > 0) {
 		const filtered = [];
 		for (const shop of allShops) {
-			if (keywords.some((kw) => shop.name.includes(kw))) {
+			if (keywords.some((kw) => shop.name.toLowerCase().includes(kw))) {
 				filtered.push(shop);
 				continue;
 			}
 			const products = await getShopProducts(shop.id);
-			if (products.some((p) => keywords.some((kw) => p.name.includes(kw)))) {
+			if (products.some((p) => keywords.some((kw) => p.name.toLowerCase().includes(kw)))) {
 				filtered.push(shop);
 			}
 		}
