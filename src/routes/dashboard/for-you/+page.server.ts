@@ -10,6 +10,7 @@ export async function load() {
 		const j = Math.floor(Math.random() * (i + 1));
 		const tmp = shops[i];
 		shops[i] = shops[j];
+		shops[j] = tmp;
 	}
 
 	return { shops: shops.slice(0, PAGE_SIZE) };
