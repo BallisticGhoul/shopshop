@@ -8,7 +8,9 @@ export async function load() {
 	// Fisher–Yates shuffle, then take one page
 	for (let i = shops.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
-		[shops[i], shops[j]] = [shops[j], shops[i]];
+		const tmp = shops[i];
+		shops[i] = shops[j];
+		shops[j] = tmp;
 	}
 
 	return { shops: shops.slice(0, PAGE_SIZE) };
